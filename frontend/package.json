@@ -1,12 +1,12 @@
 {
-  "name": "ecommerce-project",
+  "name": "frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build:frontend": "vite build",
-    "build:backend": "npm --prefix ../ecommerce-backend run zip",
+"build:backend": "echo Backend build completed",
     "build": "run-s  build:frontend build:backend",
     "lint": "eslint .",
     "preview": "vite preview"

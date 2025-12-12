@@ -1,5 +1,5 @@
 {
-  "name": "ecommerce-backend",
+  "name": "backend",
   "version": "1.0.0",
   "main": "server.js",
   "type": "module",
@@ -7,7 +7,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "zip": "node zipFiles.js",
     "postinstall": "patch-package"
   },
   "keywords": [],
