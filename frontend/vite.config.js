@@ -1,4 +1,3 @@
-// frontend/vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -15,13 +14,10 @@ export default defineConfig({
       },
     }),
   ],
-
-  // This makes Vite output directly into backend/dist
   build: {
-    outDir: path.resolve(__dirname, '../backend/dist'), // Critical line
-    emptyOutDir: true, // Deletes old files before building
+    outDir: path.resolve(__dirname, '../backend/dist'), // This is crucial!
+    emptyOutDir: true,
   },
-
   server: {
     proxy: {
       '/api': {
@@ -34,7 +30,5 @@ export default defineConfig({
       },
     },
   },
-
-  // Optional: nicer base for GitHub Pages or subfolders (keep '/' for now)
   base: '/',
 });
