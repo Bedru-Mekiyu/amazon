@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useNavigate,NavLink,useSearchParams } from 'react-router';
-import './header.css'
+import './Header.css'
 import logoWhite from '../assets/images/logo-white.png';
 import mobileLogoWhite from '../assets/images/mobile-logo-white.png';
 import searchIcon from '../assets/images/icons/search-icon.png';
