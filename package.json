@@ -2,7 +2,7 @@
   "name": "amazon-clone",
   "private": true,
   "scripts": {
-    "build:prod": "npm install && cd frontend && npm install && npm run build && cd ../backend && npm install --production",
+    "build:prod": "cd frontend && npm ci && npm run build && cd ../backend && npm ci --production",
     "start": "node backend/server.js"
   },
   "engines": {
