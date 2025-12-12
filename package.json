@@ -1,8 +1,10 @@
+
 {
   "name": "amazon-clone",
   "private": true,
+  "workspaces": ["backend", "frontend"],
   "scripts": {
-    "build:prod": "cd frontend && npm install && npm run build && cd ../backend && npm install --production",
+    "build:prod": "npm install --workspaces && cd frontend && npm run build && cd ../backend && npm install --production",
     "start": "node backend/server.js"
   },
   "engines": {
