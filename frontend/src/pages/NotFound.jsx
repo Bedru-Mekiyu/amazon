@@ -1,4 +1,4 @@
-import {Header} from "../Components/Header.jsx"
+import {Header} from "../components/Header.jsx"
 import './NotFound.css'
 
 export function NotFound({cart}){

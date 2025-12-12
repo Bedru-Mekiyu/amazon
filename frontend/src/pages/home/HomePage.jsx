@@ -1,4 +1,4 @@
-  import {Header} from '../../Components/Header.jsx'
+  import {Header} from '../../components/Header.jsx'
   import { useEffect ,useState} from 'react';
   import {  useSearchParams } from 'react-router';
   import axios from 'axios'

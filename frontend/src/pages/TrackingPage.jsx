@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { useParams } from 'react-router';
 import { useState,useEffect } from 'react';
 import './TrackingPage.css'
-import { Header } from '../Components/Header';
+import { Header } from '../components/Header';
 
 
 export function TrackingPage({cart}){
