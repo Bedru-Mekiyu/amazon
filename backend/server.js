@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -49,7 +50,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type'],
 }));
 
-// 3. Body size limit — prevent large payloads
+// 3. Request logging (morgan)
+const morganFormat = isProd ? 'combined' : 'dev';
+app.use(morgan(morganFormat, {
+  skip: () => isTest,
+}));
+
+// 4. Body size limit — prevent large payloads
 app.use(express.json({ limit: '100kb' }));
 
 // 4. Rate limiting
@@ -121,7 +128,20 @@ app.get('*', (req, res) => {
 /* eslint-disable no-unused-vars */
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Invalid JSON in request body' });
+  }
+
+  const statusCode = err.status || err.statusCode || 500;
+  const message = isProd && statusCode === 500
+    ? 'Something went wrong!'
+    : err.message || 'Something went wrong!';
+
+  res.status(statusCode).json({
+    error: message,
+    ...(isProd ? {} : { stack: err.stack }),
+  });
 });
 /* eslint-enable no-unused-vars */
 
