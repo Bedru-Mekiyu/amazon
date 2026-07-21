@@ -3,12 +3,21 @@ import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
 import { DeliveryOption } from '../models/DeliveryOption.js';
 import { CartItem } from '../models/CartItem.js';
+import { param, validationResult } from 'express-validator';
 
 const router = express.Router();
 
+function handleValidation(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join('; ') });
+  }
+  next();
+}
+
 router.get('/', async (req, res) => {
   const expand = req.query.expand;
-  let orders = await Order.unscoped().findAll({ order: [['orderTimeMs', 'DESC']] }); // Sort by most recent
+  let orders = await Order.unscoped().findAll({ order: [['orderTimeMs', 'DESC']] });
 
   if (expand === 'products') {
     orders = await Promise.all(orders.map(async (order) => {
@@ -70,30 +79,34 @@ router.post('/', async (req, res) => {
   res.status(201).json(order);
 });
 
-router.get('/:orderId', async (req, res) => {
-  const { orderId } = req.params;
-  const expand = req.query.expand;
+router.get('/:orderId',
+  param('orderId').isUUID().withMessage('orderId must be a valid UUID'),
+  handleValidation,
+  async (req, res) => {
+    const { orderId } = req.params;
+    const expand = req.query.expand;
 
-  let order = await Order.findByPk(orderId);
-  if (!order) {
-    return res.status(404).json({ error: 'Order not found' });
-  }
+    let order = await Order.findByPk(orderId);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
 
-  if (expand === 'products') {
-    const products = await Promise.all(order.products.map(async (product) => {
-      const productDetails = await Product.findByPk(product.productId);
-      return {
-        ...product,
-        product: productDetails
+    if (expand === 'products') {
+      const products = await Promise.all(order.products.map(async (product) => {
+        const productDetails = await Product.findByPk(product.productId);
+        return {
+          ...product,
+          product: productDetails
+        };
+      }));
+      order = {
+        ...order.toJSON(),
+        products
       };
-    }));
-    order = {
-      ...order.toJSON(),
-      products
-    };
-  }
+    }
 
-  res.json(order);
-});
+    res.json(order);
+  }
+);
 
 export default router;

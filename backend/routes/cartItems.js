@@ -2,8 +2,17 @@ import express from 'express';
 import { CartItem } from '../models/CartItem.js';
 import { Product } from '../models/Product.js';
 import { DeliveryOption } from '../models/DeliveryOption.js';
+import { body, param, validationResult } from 'express-validator';
 
 const router = express.Router();
+
+function handleValidation(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: errors.array().map(e => e.msg).join('; ') });
+  }
+  next();
+}
 
 router.get('/', async (req, res) => {
   const expand = req.query.expand;
@@ -22,67 +31,82 @@ router.get('/', async (req, res) => {
   res.json(cartItems);
 });
 
-router.post('/', async (req, res) => {
-  const { productId, quantity } = req.body;
+router.post('/',
+  body('productId')
+    .notEmpty().withMessage('productId is required')
+    .isUUID().withMessage('productId must be a valid UUID'),
+  body('quantity')
+    .isInt({ min: 1, max: 10 }).withMessage('quantity must be an integer between 1 and 10'),
+  handleValidation,
+  async (req, res) => {
+    const { productId, quantity } = req.body;
 
-  const product = await Product.findByPk(productId);
-  if (!product) {
-    return res.status(400).json({ error: 'Product not found' });
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return res.status(400).json({ error: 'Product not found' });
+    }
+
+    let cartItem = await CartItem.findOne({ where: { productId } });
+    if (cartItem) {
+      cartItem.quantity += quantity;
+      await cartItem.save();
+    } else {
+      cartItem = await CartItem.create({ productId, quantity, deliveryOptionId: "1" });
+    }
+
+    res.status(201).json(cartItem);
   }
+);
 
-  if (typeof quantity !== 'number' || quantity < 1 || quantity > 10) {
-    return res.status(400).json({ error: 'Quantity must be a number between 1 and 10' });
-  }
+router.put('/:productId',
+  param('productId').isUUID().withMessage('productId must be a valid UUID'),
+  body('quantity')
+    .optional()
+    .isInt({ min: 1 }).withMessage('quantity must be an integer greater than 0'),
+  body('deliveryOptionId')
+    .optional()
+    .isString().withMessage('deliveryOptionId must be a string'),
+  handleValidation,
+  async (req, res) => {
+    const { productId } = req.params;
+    const { quantity, deliveryOptionId } = req.body;
 
-  let cartItem = await CartItem.findOne({ where: { productId } });
-  if (cartItem) {
-    cartItem.quantity += quantity;
+    const cartItem = await CartItem.findOne({ where: { productId } });
+    if (!cartItem) {
+      return res.status(404).json({ error: 'Cart item not found' });
+    }
+
+    if (quantity !== undefined) {
+      cartItem.quantity = quantity;
+    }
+
+    if (deliveryOptionId !== undefined) {
+      const deliveryOption = await DeliveryOption.findByPk(deliveryOptionId);
+      if (!deliveryOption) {
+        return res.status(400).json({ error: 'Invalid delivery option' });
+      }
+      cartItem.deliveryOptionId = deliveryOptionId;
+    }
+
     await cartItem.save();
-  } else {
-    cartItem = await CartItem.create({ productId, quantity, deliveryOptionId: "1" });
+    res.json(cartItem);
   }
+);
 
-  res.status(201).json(cartItem);
-});
+router.delete('/:productId',
+  param('productId').isUUID().withMessage('productId must be a valid UUID'),
+  handleValidation,
+  async (req, res) => {
+    const { productId } = req.params;
 
-router.put('/:productId', async (req, res) => {
-  const { productId } = req.params;
-  const { quantity, deliveryOptionId } = req.body;
-
-  const cartItem = await CartItem.findOne({ where: { productId } });
-  if (!cartItem) {
-    return res.status(404).json({ error: 'Cart item not found' });
-  }
-
-  if (quantity !== undefined) {
-    if (typeof quantity !== 'number' || quantity < 1) {
-      return res.status(400).json({ error: 'Quantity must be a number greater than 0' });
+    const cartItem = await CartItem.findOne({ where: { productId } });
+    if (!cartItem) {
+      return res.status(404).json({ error: 'Cart item not found' });
     }
-    cartItem.quantity = quantity;
+
+    await cartItem.destroy();
+    res.status(204).send();
   }
-
-  if (deliveryOptionId !== undefined) {
-    const deliveryOption = await DeliveryOption.findByPk(deliveryOptionId);
-    if (!deliveryOption) {
-      return res.status(400).json({ error: 'Invalid delivery option' });
-    }
-    cartItem.deliveryOptionId = deliveryOptionId;
-  }
-
-  await cartItem.save();
-  res.json(cartItem);
-});
-
-router.delete('/:productId', async (req, res) => {
-  const { productId } = req.params;
-
-  const cartItem = await CartItem.findOne({ where: { productId } });
-  if (!cartItem) {
-    return res.status(404).json({ error: 'Cart item not found' });
-  }
-
-  await cartItem.destroy();
-  res.status(204).send();
-});
+);
 
 export default router;
