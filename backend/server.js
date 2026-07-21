@@ -99,7 +99,13 @@ if (productCount === 0) {
   console.log('Default data added to the database.');
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Export the app for testing
+export { app };
+
+// Start server only when not in test mode
+const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
+if (!isTestEnv) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
