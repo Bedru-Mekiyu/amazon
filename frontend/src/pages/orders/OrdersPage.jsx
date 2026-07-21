@@ -4,21 +4,31 @@ import "./OrdersPage.css";
 import { Header } from "../../components/Header";
 import { OrderHeader } from "./OrderHeader";
 import { OrderDetailGrind } from "./OrderDetailGrind";
+import { OrderSkeleton } from "../../components/Skeleton";
 
 export function OrdersPage() {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchOrderData = async () => {
       try {
         const response = await axios.get("/api/orders?expand=products");
-        setOrders(response.data);
+        if (!cancelled) {
+          setOrders(response.data);
+        }
       } catch (error) {
         console.error("Error fetching orders:", error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchOrderData();
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -32,12 +42,14 @@ export function OrdersPage() {
         <div className="page-title">Your Orders</div>
 
         <div className="orders-grid">
-          {orders.map((order) => (
-            <div key={order.id} className="order-container">
-              <OrderHeader order={order} />
-              <OrderDetailGrind order={order} />
-            </div>
-          ))}
+          {loading
+            ? Array.from({ length: 3 }, (_, i) => <OrderSkeleton key={i} />)
+            : orders.map((order) => (
+                <div key={order.id} className="order-container">
+                  <OrderHeader order={order} />
+                  <OrderDetailGrind order={order} />
+                </div>
+              ))}
         </div>
       </div>
     </Fragment>
