@@ -1,11 +1,21 @@
 import { it, expect, describe, vi, beforeEach } from "vitest";
 import { render, screen, within, waitFor } from "@testing-library/react";
-import axios from "axios";
 import { MemoryRouter } from "react-router";
 import userEvent from "@testing-library/user-event";
 import { HomePage } from "./HomePage.jsx";
 
-vi.mock("axios");
+const mockApi = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
+}));
+
+vi.mock("../../api", () => ({
+  default: mockApi,
+  assetUrl: vi.fn((path) => path),
+}));
+
 vi.mock("../../context/CartContext", () => ({
   useCart: () => ({ cart: [], loadcart: vi.fn() }),
 }));
@@ -16,7 +26,7 @@ describe("home page component", () => {
   beforeEach(() => {
     user = userEvent.setup();
 
-    axios.get.mockResolvedValue({
+    mockApi.get.mockResolvedValue({
       data: [
         {
           id: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
@@ -58,13 +68,13 @@ describe("home page component", () => {
     await user.click(within(productContainers[0]).getByTestId("add-to-cart-button"));
     await user.click(within(productContainers[1]).getByTestId("add-to-cart-button"));
 
-    // wait for axios and loadcart
+    // wait for api calls
     await waitFor(() => {
-      expect(axios.post).toHaveBeenNthCalledWith(1, "/api/cart-items", {
+      expect(mockApi.post).toHaveBeenNthCalledWith(1, "/api/cart-items", {
         productId: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
         quantity: 2,
       });
-      expect(axios.post).toHaveBeenNthCalledWith(2, "/api/cart-items", {
+      expect(mockApi.post).toHaveBeenNthCalledWith(2, "/api/cart-items", {
         productId: "15b6fc6f-327a-4ec4-896f-486349e85a3d",
         quantity: 3,
       });

@@ -1,10 +1,20 @@
 import { it, expect, describe, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import axios from "axios";
 import userEvent from "@testing-library/user-event";
 import { Product } from "./Product.jsx";
 
-vi.mock("axios");
+const mockApi = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
+}));
+
+vi.mock("../../api", () => ({
+  default: mockApi,
+  assetUrl: vi.fn((path) => path),
+}));
+
 vi.mock("../../context/CartContext", () => ({
   useCart: () => ({ cart: [], loadcart: vi.fn() }),
 }));
@@ -50,7 +60,7 @@ describe("product testing on product page ", () => {
 
     const addtocartbutton = screen.getByTestId("add-to-cart-button");
     await user.click(addtocartbutton);
-    expect(axios.post).toHaveBeenCalledWith("/api/cart-items", {
+    expect(mockApi.post).toHaveBeenCalledWith("/api/cart-items", {
       productId: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
       quantity: 1,
     });
@@ -69,7 +79,7 @@ describe("product testing on product page ", () => {
 
     const addtocartbutton = screen.getByTestId("add-to-cart-button");
     await user.click(addtocartbutton);
-    expect(axios.post).toHaveBeenCalledWith("/api/cart-items", {
+    expect(mockApi.post).toHaveBeenCalledWith("/api/cart-items", {
       productId: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
       quantity: 3,
     });

@@ -1,5 +1,5 @@
+import api from "../../api";
 import { useState, useEffect, Fragment } from "react";
-import axios from "axios";
 import "./OrdersPage.css";
 import { Header } from "../../components/Header";
 import { OrderHeader } from "./OrderHeader";
@@ -15,7 +15,7 @@ export function OrdersPage() {
     let cancelled = false;
     const fetchOrderData = async () => {
       try {
-        const response = await axios.get("/api/orders?expand=products");
+        const response = await api.get("/api/orders?expand=products");
         if (!cancelled) {
           setOrders(response.data);
         }

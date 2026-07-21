@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const isVercel = process.env.VERCEL === '1';
+
 export default defineConfig({
   plugins: [
     react({
@@ -15,7 +17,11 @@ export default defineConfig({
     }),
   ],
   build: {
-    outDir: path.resolve(__dirname, '../backend/dist'), // This is crucial!
+    // Vercel: use default 'dist' in frontend/
+    // Docker/single-server: output to ../backend/dist for Express to serve
+    outDir: isVercel
+      ? 'dist'
+      : path.resolve(__dirname, '../backend/dist'),
     emptyOutDir: true,
   },
   server: {

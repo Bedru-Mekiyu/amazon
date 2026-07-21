@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../api";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { useCart } from "../../context/CartContext";
@@ -21,8 +21,8 @@ export function CheckoutPage() {
     const fetchData = async () => {
       try {
         const [paymentRes, deliveryRes] = await Promise.all([
-          axios.get("/api/payment-summary"),
-          axios.get("/api/delivery-options?expand=estimatedDeliveryTime"),
+          api.get("/api/payment-summary"),
+          api.get("/api/delivery-options?expand=estimatedDeliveryTime"),
         ]);
         if (!cancelled) {
           setPaymentSummary(paymentRes.data);
@@ -46,7 +46,7 @@ export function CheckoutPage() {
     setPlacingOrder(true);
     setError(null);
     try {
-      await axios.post("/api/orders");
+      await api.post("/api/orders");
       navigate(`/orders`);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to place order. Please try again.");
