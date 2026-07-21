@@ -9,6 +9,7 @@ beforeAll(async () => {
   app = mod.app;
 });
 
+
 describe('Security Hardening', () => {
   it('GET /api/health returns status ok', async () => {
     const res = await request(app).get('/api/health');
