@@ -28,7 +28,7 @@ export function CheckoutPage() {
           setPaymentSummary(paymentRes.data);
           setDeliveryOptions(deliveryRes.data);
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError("Failed to load checkout data. Please try again.");
         }
@@ -46,7 +46,7 @@ export function CheckoutPage() {
     setPlacingOrder(true);
     setError(null);
     try {
-      const response = await axios.post("/api/orders");
+      await axios.post("/api/orders");
       navigate(`/orders`);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to place order. Please try again.");

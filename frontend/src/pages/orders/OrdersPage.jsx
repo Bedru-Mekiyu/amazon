@@ -19,7 +19,7 @@ export function OrdersPage() {
         if (!cancelled) {
           setOrders(response.data);
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError("Failed to load orders. Please try again.");
         }
