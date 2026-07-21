@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -21,6 +22,7 @@ import { defaultDeliveryOptions } from './defaultData/defaultDeliveryOptions.js'
 import { defaultCart } from './defaultData/defaultCart.js';
 import { defaultOrders } from './defaultData/defaultOrders.js';
 import fs from 'fs';
+import { sendSuccess } from './utils/response.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,7 +40,10 @@ const servesFrontend = !process.env.FRONTEND_URL;
 // 1. Helmet — security headers
 app.use(helmet());
 
-// 2. CORS — restrict origins in production
+// 2. Compression — gzip all responses (production standard)
+app.use(compression());
+
+// 3. CORS — restrict origins in production
 // FRONTEND_URL can be a comma-separated list of allowed origins (e.g. Vercel preview URLs)
 const allowedOrigins = isProd
   ? (process.env.FRONTEND_URL || 'https://amazon.bedru.dev').split(',').map(s => s.trim()).filter(Boolean)
@@ -110,6 +115,30 @@ app.get('/api/health', (req, res) => {
 
 // Serve images from the images folder
 app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// OpenAPI specification
+import apiSpec from './docs/api-spec.json' with { type: 'json' };
+app.get('/api/spec', (req, res) => {
+  res.json(apiSpec);
+});
+
+// API index — discoverable entry point
+app.get('/api', (req, res) => {
+  sendSuccess(res, {
+    name: 'Amazon E-Commerce API',
+    version: '1.0.0',
+    docs: `${req.protocol}://${req.get('host')}/api/spec`,
+    endpoints: {
+      health: { method: 'GET', path: '/api/health' },
+      products: { method: 'GET', path: '/api/products?search=&page=&limit=' },
+      cartItems: { method: 'GET|POST|PUT|DELETE', path: '/api/cart-items/:productId?' },
+      deliveryOptions: { method: 'GET', path: '/api/delivery-options' },
+      paymentSummary: { method: 'GET', path: '/api/payment-summary' },
+      orders: { method: 'GET|POST', path: '/api/orders/:orderId?' },
+      reset: { method: 'POST', path: '/api/reset' },
+    },
+  });
+});
 
 // Use routes
 app.use('/api/products', productRoutes);

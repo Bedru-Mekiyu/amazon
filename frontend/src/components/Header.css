@@ -13,6 +13,8 @@
   left: 0;
   right: 0;
   height: 60px;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .header .left-section {
@@ -88,6 +90,13 @@
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.2s ease, filter 0.2s ease;
+}
+
+.header .search-button:hover {
+  background-color: rgb(160, 240, 165);
+  filter: brightness(0.97);
 }
 
 .header .search-icon {

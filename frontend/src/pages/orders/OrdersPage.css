@@ -206,9 +206,6 @@
   }
 
   .orders-page .product-actions {
-    /* grid-column: auto; undos grid-column: 2; from above.
-      This element will now be placed in its normal column
-      in the grid. */
     grid-column: auto;
     margin-bottom: 70px;
   }
@@ -217,4 +214,49 @@
     width: 100%;
     padding: 12px;
   }
+}
+
+/* Order card polish */
+.orders-page .order-header {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.orders-page .order-details-grid {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.orders-page .buy-again-button {
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.orders-page .buy-again-button:active {
+  transform: scale(0.97);
+}
+
+.orders-page .track-package-button {
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Empty state */
+.orders-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #666;
+}
+
+.orders-empty p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.orders-empty .button-primary {
+  display: inline-block;
+  padding: 10px 24px;
+  text-decoration: none;
+}
+
+/* Error state */
+.orders-error {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #c00;
 }

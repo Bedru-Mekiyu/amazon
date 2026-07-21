@@ -1,12 +1,11 @@
 <p align="center">
+  <img src="https://img.shields.io/github/actions/workflow/status/Bedru-Mekiyu/amazon/ci.yml?branch=main&label=CI&logo=github" alt="CI" />
+  <img src="https://img.shields.io/badge/tests-20%20passing-2ea44f?logo=vitest" alt="Tests" />
+  <img src="https://img.shields.io/badge/vulnerabilities-0-success?logo=snyk" alt="Vulnerabilities" />
   <img src="https://img.shields.io/badge/React-19.1.1-61DAFB?logo=react" alt="React" />
   <img src="https://img.shields.io/badge/Express-4.21.2-000000?logo=express" alt="Express" />
-  <img src="https://img.shields.io/badge/Sequelize-6.37.8-52B0E7?logo=sequelize" alt="Sequelize" />
-  <img src="https://img.shields.io/badge/Vite-7.1.7-646CFF?logo=vite" alt="Vite" />
-  <img src="https://img.shields.io/badge/Vitest-3.2.4-6E9F18?logo=vitest" alt="Vitest" />
-  <img src="https://img.shields.io/badge/license-ISC-22c55e" alt="License: ISC" />
-  <img src="https://img.shields.io/badge/CI-passing-22c55e" alt="CI: Passing" />
-  <img src="https://img.shields.io/badge/vulnerabilities-0-success" alt="0 Vulnerabilities" />
+  <img src="https://img.shields.io/badge/Vite-6-646CFF?logo=vite" alt="Vite" />
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License" />
 </p>
 
 <div align="center">
