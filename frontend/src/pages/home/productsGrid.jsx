@@ -1,12 +1,10 @@
 import { Product } from "./Product";
 
-export function ProductsGrid({ products, loadcart }) {
+export function ProductsGrid({ products }) {
   return (
     <div className="products-grid">
       {products.map((product) => {
-        return (
-          <Product key={product.id} loadcart={loadcart} product={product} />
-        );
+        return <Product key={product.id} product={product} />;
       })}
     </div>
   );
