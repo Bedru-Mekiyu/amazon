@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",                    
+    "build": "vite build",
     "preview": "vite preview --outDir ../backend/dist",
     "lint": "eslint ."
   },
   "dependencies": {
-    "axios": "^1.12.2",
+    "axios": "^1.18.1",
     "dayjs": "^1.11.18",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
