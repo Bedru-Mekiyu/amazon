@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 
 const CartContext = createContext(null);
 
@@ -9,7 +9,7 @@ export function CartProvider({ children }) {
 
   const loadcart = async () => {
     try {
-      const response = await axios.get("/api/cart-items?expand=product");
+      const response = await api.get("/api/cart-items?expand=product");
       setCart(response.data);
     } catch (error) {
       console.error("Error loading cart:", error);

@@ -1,5 +1,5 @@
+import api from "../../api";
 import { Fragment } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import { useCart } from "../../context/CartContext";
@@ -10,7 +10,7 @@ export function OrderDetailGrind({ order }) {
 
   const handleAddToCart = async (productId) => {
     try {
-      await axios.post("/api/cart-items", {
+      await api.post("/api/cart-items", {
         productId,
         quantity: 1,
       });

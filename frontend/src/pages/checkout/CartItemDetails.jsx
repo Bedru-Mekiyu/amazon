@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../api";
 import { useState } from "react";
 import { useCart } from "../../context/CartContext";
 import { formatMoney } from "../../utils/money";
@@ -9,13 +9,13 @@ export function CartItemDetails({ cartItem }) {
   const [isUpdate, setIsUpdate] = useState(false);
 
   const deleteCartItem = async () => {
-    await axios.delete(`/api/cart-items/${cartItem.productId}`, {});
+    await api.delete(`/api/cart-items/${cartItem.productId}`);
     await loadcart();
   };
 
   const toggle = async () => {
     if (isUpdate) {
-      await axios.put(`/api/cart-items/${cartItem.productId}`, {
+      await api.put(`/api/cart-items/${cartItem.productId}`, {
         quantity,
       });
       await loadcart();

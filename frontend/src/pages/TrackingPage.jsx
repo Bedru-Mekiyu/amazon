@@ -1,5 +1,5 @@
+import api from "../api";
 import { Link } from "react-router";
-import axios from "axios";
 import dayjs from "dayjs";
 import { useParams } from "react-router";
 import { useState, useEffect } from "react";
@@ -16,7 +16,7 @@ export function TrackingPage() {
     let cancelled = false;
     const fetchTrackingData = async () => {
       try {
-        const response = await axios.get(
+        const response = await api.get(
           `/api/orders/${orderId}?expand=products`
         );
         if (!cancelled) {

@@ -29,6 +29,9 @@ const __dirname = path.dirname(__filename);
 
 const isProd = process.env.NODE_ENV === 'production';
 const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
+// When FRONTEND_URL is set (Vercel), the backend should NOT serve the SPA.
+// The frontend is hosted separately and calls this backend only for API + images.
+const servesFrontend = !process.env.FRONTEND_URL;
 
 // ── Security Middleware ───────────────────────────────────────────
 
@@ -36,14 +39,20 @@ const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
 app.use(helmet());
 
 // 2. CORS — restrict origins in production
+// FRONTEND_URL can be a comma-separated list of allowed origins (e.g. Vercel preview URLs)
 const allowedOrigins = isProd
-  ? [process.env.FRONTEND_URL || 'https://amazon.bedru.dev'].filter(Boolean)
+  ? (process.env.FRONTEND_URL || 'https://amazon.bedru.dev').split(',').map(s => s.trim()).filter(Boolean)
   : ['http://localhost:5173', 'http://localhost:3000'];
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Allow requests with no origin (curl, server-to-server, tests)
-    if (!origin || allowedOrigins.includes(origin) || !isProd) return cb(null, true);
+    // Allow requests with no origin (curl, server-to-server, tests, Render health checks)
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    // In dev/test, allow all origins
+    if (!isProd) return cb(null, true);
+    // In production, check if origin matches Vercel preview pattern (*.vercel.app)
+    if (origin.endsWith('.vercel.app')) return cb(null, true);
     cb(null, false);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -110,18 +119,20 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reset', resetRoutes);
 app.use('/api/payment-summary', paymentSummaryRoutes);
 
-// Serve static files from the dist folder
-app.use(express.static(path.join(__dirname, 'dist')));
+// Serve static files from the dist folder (only when backend also hosts frontend)
+if (servesFrontend) {
+  app.use(express.static(path.join(__dirname, 'dist')));
 
-// Catch-all route to serve index.html for any unmatched routes
-app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, 'dist', 'index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.status(404).send('index.html not found');
-  }
-});
+  // Catch-all route to serve index.html for any unmatched routes
+  app.get('*', (req, res) => {
+    const indexPath = path.join(__dirname, 'dist', 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).send('index.html not found');
+    }
+  });
+}
 
 // ── Error Handling ────────────────────────────────────────────────
 

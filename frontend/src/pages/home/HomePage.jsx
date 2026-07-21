@@ -1,8 +1,8 @@
-import { Header } from "../../components/Header.jsx";
-import { useEffect, useState } from "react";
+import api from "../../api";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
-import axios from "axios";
 import "./HomePage.css";
+import { Header } from "../../components/Header.jsx";
 import { ProductsGrid } from "./productsGrid.jsx";
 import { ProductsGridSkeleton } from "../../components/Skeleton.jsx";
 
@@ -20,7 +20,7 @@ export function HomePage() {
         const urlPath = search
           ? `/api/products?search=${search}`
           : "/api/products";
-        const response = await axios.get(urlPath);
+        const response = await api.get(urlPath);
         if (!cancelled) {
           setProducts(response.data);
         }
