@@ -30,6 +30,12 @@ export function Header() {
     navigate(`/?search=${search}`);
   };
 
+  const handleSearchKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleSearchButton();
+    }
+  };
+
   return (
     <div className="header">
       <div className="left-section">
@@ -46,6 +52,7 @@ export function Header() {
           placeholder="Search"
           value={search}
           onChange={handleSearchInput}
+          onKeyDown={handleSearchKeyDown}
         />
 
         <button className="search-button" onClick={handleSearchButton}>

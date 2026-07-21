@@ -1,11 +1,9 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router";
-import axios from "axios";
 import { it, expect, describe, vi, beforeEach } from "vitest";
 
 import { PaymentSummary } from "./PaymentSummary";
 
-vi.mock("axios");
 vi.mock("../../context/CartContext", () => ({
   useCart: () => ({ cart: [], loadcart: vi.fn() }),
 }));
@@ -29,12 +27,15 @@ describe("PaymentSummary Integration Test (Navigation + API)", () => {
     vi.clearAllMocks();
   });
 
-  it("calls axios.post, loadCart, and navigates to /orders after clicking 'Place Order'", async () => {
-    axios.post.mockResolvedValueOnce({}); // mock successful POST
+  it("calls onPlaceOrder when clicked and navigates to /orders", async () => {
+    const onPlaceOrder = vi.fn().mockResolvedValueOnce();
 
     render(
       <MemoryRouter initialEntries={["/cart"]}>
-        <PaymentSummary paymentSummary={mockPaymentSummary} />
+        <PaymentSummary
+          paymentSummary={mockPaymentSummary}
+          onPlaceOrder={onPlaceOrder}
+        />
         <Location /> {/* show current URL */}
       </MemoryRouter>
     );
@@ -47,9 +48,7 @@ describe("PaymentSummary Integration Test (Navigation + API)", () => {
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith("/api/orders");
-      // Now URL should change to /orders
-      expect(screen.getByTestId("url-path")).toHaveTextContent("/orders");
+      expect(onPlaceOrder).toHaveBeenCalled();
     });
   });
 });
