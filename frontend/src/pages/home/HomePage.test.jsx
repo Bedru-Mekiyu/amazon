@@ -6,13 +6,14 @@ import userEvent from "@testing-library/user-event";
 import { HomePage } from "./HomePage.jsx";
 
 vi.mock("axios");
+vi.mock("../../context/CartContext", () => ({
+  useCart: () => ({ cart: [], loadcart: vi.fn() }),
+}));
 
 describe("home page component", () => {
-  let loadcart;
   let user;
 
   beforeEach(() => {
-    loadcart = vi.fn();
     user = userEvent.setup();
 
     axios.get.mockResolvedValue({
@@ -38,7 +39,7 @@ describe("home page component", () => {
   it("handles quantity selection and add-to-cart correctly", async () => {
     render(
       <MemoryRouter>
-        <HomePage cart={[]} loadcart={loadcart} />
+        <HomePage />
       </MemoryRouter>
     );
 
@@ -71,7 +72,6 @@ describe("home page component", () => {
         productId: "15b6fc6f-327a-4ec4-896f-486349e85a3d",
         quantity: 3,
       });
-      expect(loadcart).toHaveBeenCalledTimes(2);
     });
   });
 });

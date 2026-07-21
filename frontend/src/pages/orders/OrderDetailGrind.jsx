@@ -2,18 +2,19 @@ import { Fragment } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import dayjs from "dayjs";
+import { useCart } from "../../context/CartContext";
 import buy from "../../assets/images/icons/buy-again.png";
 
-export function OrderDetailGrind({ order, loadCart }) {
+export function OrderDetailGrind({ order }) {
+  const { loadcart } = useCart();
+
   const handleAddToCart = async (productId) => {
     try {
       await axios.post("/api/cart-items", {
         productId,
         quantity: 1,
       });
-      if (loadCart) {
-        await loadCart();
-      }
+      await loadcart();
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
@@ -24,7 +25,10 @@ export function OrderDetailGrind({ order, loadCart }) {
       {order.products.map((orderProduct) => (
         <Fragment key={orderProduct.id}>
           <div className="product-image-container">
-            <img src={orderProduct.product.image} alt={orderProduct.product.name} />
+            <img
+              src={orderProduct.product.image}
+              alt={orderProduct.product.name}
+            />
           </div>
 
           <div className="product-details">

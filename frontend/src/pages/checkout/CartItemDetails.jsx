@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useState } from "react";
-
+import { useCart } from "../../context/CartContext";
 import { formatMoney } from "../../utils/money";
-export function CartItemDetails({ cartItem, loadcart }) {
+
+export function CartItemDetails({ cartItem }) {
+  const { loadcart } = useCart();
   const [quantity, setQuantity] = useState(cartItem.quantity);
   const [isUpdate, setIsUpdate] = useState(false);
 
@@ -14,8 +16,7 @@ export function CartItemDetails({ cartItem, loadcart }) {
   const toggle = async () => {
     if (isUpdate) {
       await axios.put(`/api/cart-items/${cartItem.productId}`, {
-      
-        quantity
+        quantity,
       });
       await loadcart();
       setIsUpdate(false);
@@ -28,16 +29,14 @@ export function CartItemDetails({ cartItem, loadcart }) {
     setQuantity(Number(event.target.value));
   };
 
-  const handleEvent =(event)=>{
-    if(event.key==='Enter'){
-      toggle()
-    }else if(event.key==='Escape'){
-      setQuantity(cartItem.quantity)
+  const handleEvent = (event) => {
+    if (event.key === "Enter") {
+      toggle();
+    } else if (event.key === "Escape") {
+      setQuantity(cartItem.quantity);
       setIsUpdate(false);
-
     }
-
-  }
+  };
 
   return (
     <>

@@ -2,11 +2,10 @@ import { useState, useEffect, Fragment } from "react";
 import axios from "axios";
 import "./OrdersPage.css";
 import { Header } from "../../components/Header";
-
 import { OrderHeader } from "./OrderHeader";
 import { OrderDetailGrind } from "./OrderDetailGrind";
 
-export function OrdersPage({ cart, loadCart }) {
+export function OrdersPage() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
@@ -25,13 +24,9 @@ export function OrdersPage({ cart, loadCart }) {
   return (
     <Fragment>
       <title>Orders</title>
-      <link
-        rel="icon"
-        type="image/svg+xml"
-        href="/orders-favicon.png"
-      />
+      <link rel="icon" type="image/svg+xml" href="/orders-favicon.png" />
 
-      <Header cart={cart} />
+      <Header />
 
       <div className="orders-page">
         <div className="page-title">Your Orders</div>
@@ -40,7 +35,7 @@ export function OrdersPage({ cart, loadCart }) {
           {orders.map((order) => (
             <div key={order.id} className="order-container">
               <OrderHeader order={order} />
-              <OrderDetailGrind order={order} loadCart={loadCart} />
+              <OrderDetailGrind order={order} />
             </div>
           ))}
         </div>
