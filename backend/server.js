@@ -117,9 +117,14 @@ app.get('/api/health', (req, res) => {
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // OpenAPI specification
-import apiSpec from './docs/api-spec.json' with { type: 'json' };
 app.get('/api/spec', (req, res) => {
-  res.json(apiSpec);
+  try {
+    const specPath = path.join(__dirname, 'docs', 'api-spec.json');
+    const spec = JSON.parse(fs.readFileSync(specPath, 'utf-8'));
+    res.json(spec);
+  } catch {
+    res.status(500).json({ success: false, error: 'Failed to load API spec' });
+  }
 });
 
 // API index — discoverable entry point
