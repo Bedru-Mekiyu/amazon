@@ -1,5 +1,5 @@
 import { it, expect, describe, vi, beforeEach } from "vitest";
-import { render, screen, within, waitFor, act } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import axios from "axios";
 import { MemoryRouter } from "react-router";
 import userEvent from "@testing-library/user-event";
@@ -48,19 +48,15 @@ describe("home page component", () => {
     const productContainers = await screen.findAllByTestId("products-container");
 
     // select different quantities safely
-    await act(async () => {
-      await user.selectOptions(quantitySelectors[0], "2");
-      await user.selectOptions(quantitySelectors[1], "3");
-    });
+    await user.selectOptions(quantitySelectors[0], "2");
+    await user.selectOptions(quantitySelectors[1], "3");
 
     expect(quantitySelectors[0]).toHaveValue("2");
     expect(quantitySelectors[1]).toHaveValue("3");
 
     // click add-to-cart for both
-    await act(async () => {
-      await user.click(within(productContainers[0]).getByTestId("add-to-cart-button"));
-      await user.click(within(productContainers[1]).getByTestId("add-to-cart-button"));
-    });
+    await user.click(within(productContainers[0]).getByTestId("add-to-cart-button"));
+    await user.click(within(productContainers[1]).getByTestId("add-to-cart-button"));
 
     // wait for axios and loadcart
     await waitFor(() => {
