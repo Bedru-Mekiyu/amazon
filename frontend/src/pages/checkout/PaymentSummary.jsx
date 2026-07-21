@@ -1,17 +1,6 @@
 import { formatMoney } from "../../utils/money";
-import axios from "axios";
-import { useNavigate } from "react-router";
-import { useCart } from "../../context/CartContext";
 
-export function PaymentSummary({ paymentSummary }) {
-  const { loadcart } = useCart();
-  const navigate = useNavigate();
-
-  const creatOrder = async () => {
-    await axios.post("/api/orders");
-    loadcart();
-    navigate("/orders");
-  };
+export function PaymentSummary({ paymentSummary, onPlaceOrder, placingOrder }) {
 
   return (
     <div className="payment-summary">
@@ -56,9 +45,10 @@ export function PaymentSummary({ paymentSummary }) {
 
           <button
             className="place-order-button button-primary"
-            onClick={creatOrder}
+            onClick={onPlaceOrder}
+            disabled={placingOrder}
           >
-            Place your order
+            {placingOrder ? "Placing order..." : "Place your order"}
           </button>
         </>
       )}
