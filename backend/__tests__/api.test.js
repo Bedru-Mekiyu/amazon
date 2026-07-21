@@ -1,12 +1,29 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
 
-// Import the app — top-level awaits in server.js will sync and seed the DB
 let app;
 
 beforeAll(async () => {
+  process.env.NODE_ENV = 'test';
   const mod = await import('../server.js');
   app = mod.app;
+});
+
+describe('Security Hardening', () => {
+  it('GET /api/health returns status ok', async () => {
+    const res = await request(app).get('/api/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('status', 'ok');
+    expect(res.body).toHaveProperty('timestamp');
+    expect(res.body).toHaveProperty('uptime');
+  });
+
+  it('sets security headers via helmet', async () => {
+    const res = await request(app).get('/api/health');
+    expect(res.headers).toHaveProperty('x-content-type-options', 'nosniff');
+    expect(res.headers).toHaveProperty('x-frame-options', 'SAMEORIGIN');
+    expect(res.headers).toHaveProperty('x-download-options', 'noopen');
+  });
 });
 
 describe('Products API', () => {
