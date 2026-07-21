@@ -1,0 +1,39 @@
+{
+  "name": "amazon-ecommerce",
+  "private": true,
+  "version": "1.0.0",
+  "description": "...",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky",
+    "lint-staged": "lint-staged",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npx eslint ."
+  },
+  "lint-staged": {
+    "frontend/src/**/*.{js,jsx}": [
+      "cd frontend && npx eslint --fix",
+      "cd frontend && npx vitest run --passWithNoTests --reporter=verbose --changed"
+    ],
+    "backend/**/*.js": [
+      "cd backend && npx eslint --fix"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bedru-Mekiyu/amazon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bedru-Mekiyu/amazon/issues"
+  },
+  "homepage": "https://github.com/Bedru-Mekiyu/amazon#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0"
+  }
+}
