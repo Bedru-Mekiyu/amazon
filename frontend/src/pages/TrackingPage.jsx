@@ -5,20 +5,41 @@ import { useParams } from "react-router";
 import { useState, useEffect } from "react";
 import "./TrackingPage.css";
 import { Header } from "../components/Header";
+import { TrackingSkeleton } from "../components/Skeleton";
 
 export function TrackingPage() {
   const { orderId, productId } = useParams();
   const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchTrackingData = async () => {
-      const response = await axios.get(
-        `/api/orders/${orderId}?expand=products`
-      );
-      setOrder(response.data);
+      try {
+        const response = await axios.get(
+          `/api/orders/${orderId}?expand=products`
+        );
+        if (!cancelled) {
+          setOrder(response.data);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     };
     fetchTrackingData();
+    return () => { cancelled = true; };
   }, [orderId]);
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <TrackingSkeleton />
+      </>
+    );
+  }
 
   if (!order) {
     return null;
@@ -27,6 +48,18 @@ export function TrackingPage() {
   const orderProduct = order.products.find(
     (p) => String(p.productId) === String(productId)
   );
+
+  if (!orderProduct) {
+    return (
+      <>
+        <title>tracking</title>
+        <Header />
+        <div className="tracking-page">
+          <p>Product not found in this order.</p>
+        </div>
+      </>
+    );
+  }
 
   const totalDeliveryTimeMs =
     orderProduct.estimatedDeliveryTimeMs - order.orderTimeMs;

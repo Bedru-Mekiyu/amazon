@@ -4,21 +4,34 @@ import { useSearchParams } from "react-router";
 import axios from "axios";
 import "./HomePage.css";
 import { ProductsGrid } from "./productsGrid.jsx";
+import { ProductsGridSkeleton } from "../../components/Skeleton.jsx";
 
 export function HomePage() {
   const [searchParams] = useSearchParams();
   const search = searchParams.get("search");
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const HomeData = async () => {
-      const urlPath = search
-        ? `/api/products?search=${search}`
-        : "/api/products";
-      const Response = await axios.get(urlPath);
-      setProducts(Response.data);
+    let cancelled = false;
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const urlPath = search
+          ? `/api/products?search=${search}`
+          : "/api/products";
+        const response = await axios.get(urlPath);
+        if (!cancelled) {
+          setProducts(response.data);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     };
-    HomeData();
+    fetchProducts();
+    return () => { cancelled = true; };
   }, [search]);
 
   return (
@@ -28,7 +41,7 @@ export function HomePage() {
       <Header />
 
       <div className="home-page">
-        <ProductsGrid products={products} />
+        {loading ? <ProductsGridSkeleton /> : <ProductsGrid products={products} />}
       </div>
     </>
   );
