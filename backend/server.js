@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { sequelize } from './models/index.js';
@@ -24,9 +26,71 @@ const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+const isProd = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
+
+// ── Security Middleware ───────────────────────────────────────────
+
+// 1. Helmet — security headers
+app.use(helmet());
+
+// 2. CORS — restrict origins in production
+const allowedOrigins = isProd
+  ? [process.env.FRONTEND_URL || 'https://amazon.bedru.dev'].filter(Boolean)
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    // Allow requests with no origin (curl, server-to-server, tests)
+    if (!origin || allowedOrigins.includes(origin) || !isProd) return cb(null, true);
+    cb(null, false);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
+}));
+
+// 3. Body size limit — prevent large payloads
+app.use(express.json({ limit: '100kb' }));
+
+// 4. Rate limiting
+// General limiter for all API routes
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+  skip: () => isTest, // disable during tests
+});
+
+// Stricter limiter for mutation endpoints
+const mutationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many write requests, please try again later.' },
+  skip: () => isTest,
+});
+
+app.use('/api', apiLimiter);
+app.use('/api/cart-items', mutationLimiter);
+app.use('/api/orders', mutationLimiter);
+app.use('/api/reset', mutationLimiter);
+
+// 5. Trust proxy — required for rate limiting behind reverse proxies
+app.set('trust proxy', 1);
+
+// ── Routes ────────────────────────────────────────────────────────
+
+// Health check (no rate limit)
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
 
 // Serve images from the images folder
 app.use('/images', express.static(path.join(__dirname, 'images')));
@@ -52,7 +116,8 @@ app.get('*', (req, res) => {
   }
 });
 
-// Error handling middleware
+// ── Error Handling ────────────────────────────────────────────────
+
 /* eslint-disable no-unused-vars */
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -60,7 +125,8 @@ app.use((err, req, res, next) => {
 });
 /* eslint-enable no-unused-vars */
 
-// Sync database and load default data if none exist
+// ── Database Seeding ──────────────────────────────────────────────
+
 await sequelize.sync();
 
 const productCount = await Product.count();
@@ -99,12 +165,11 @@ if (productCount === 0) {
   console.log('Default data added to the database.');
 }
 
-// Export the app for testing
+// ── Export & Start ────────────────────────────────────────────────
+
 export { app };
 
-// Start server only when not in test mode
-const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
-if (!isTestEnv) {
+if (!isTest) {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
