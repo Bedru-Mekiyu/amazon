@@ -1,0 +1,123 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Amazon E-Commerce API",
+    "description": "Production-grade REST API for an Amazon-like e-commerce platform. Features products, cart management, checkout, and order tracking.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Bedru Mekiyu",
+      "url": "https://github.com/Bedru-Mekiyu/amazon"
+    }
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Local development" },
+    { "url": "https://amazon-api.onrender.com", "description": "Production (Render)" }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "example": { "status": "ok", "timestamp": "2026-07-21T17:00:00.000Z", "uptime": 1234.56 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "List products with optional search and pagination",
+        "tags": ["Products"],
+        "parameters": [
+          { "name": "search", "in": "query", "schema": { "type": "string" }, "description": "Full-text search by name or keywords" },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1, "minimum": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50, "maximum": 100 } }
+        ],
+        "responses": {
+          "200": { "description": "Array of products with pagination headers" }
+        }
+      }
+    },
+    "/api/cart-items": {
+      "get": {
+        "summary": "List cart items",
+        "tags": ["Cart"],
+        "parameters": [
+          { "name": "expand", "in": "query", "schema": { "type": "string", "enum": ["product"] }, "description": "Include full product details" }
+        ],
+        "responses": { "200": { "description": "Array of cart items" } }
+      },
+      "post": {
+        "summary": "Add item to cart",
+        "tags": ["Cart"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["productId", "quantity"],
+                "properties": {
+                  "productId": { "type": "string", "format": "uuid" },
+                  "quantity": { "type": "integer", "minimum": 1, "maximum": 10 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Item created" },
+          "400": { "description": "Validation error" }
+        }
+      }
+    },
+    "/api/delivery-options": {
+      "get": {
+        "summary": "List available delivery options",
+        "tags": ["Checkout"],
+        "parameters": [
+          { "name": "expand", "in": "query", "schema": { "type": "string", "enum": ["estimatedDeliveryTime"] } }
+        ],
+        "responses": { "200": { "description": "Array of delivery options" } }
+      }
+    },
+    "/api/payment-summary": {
+      "get": {
+        "summary": "Get payment summary for current cart",
+        "tags": ["Checkout"],
+        "responses": { "200": { "description": "Cost breakdown with totals" } }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "summary": "List orders",
+        "tags": ["Orders"],
+        "parameters": [
+          { "name": "expand", "in": "query", "schema": { "type": "string", "enum": ["products"] } }
+        ],
+        "responses": { "200": { "description": "Array of orders" } }
+      },
+      "post": {
+        "summary": "Create order from cart contents",
+        "tags": ["Orders"],
+        "responses": {
+          "201": { "description": "Order created, cart cleared" },
+          "400": { "description": "Cart is empty" }
+        }
+      }
+    },
+    "/api/reset": {
+      "post": {
+        "summary": "Reset database to default seed data",
+        "tags": ["System"],
+        "responses": { "204": { "description": "Database reset complete" } }
+      }
+    }
+  }
+}

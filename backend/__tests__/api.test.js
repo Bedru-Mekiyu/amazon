@@ -92,6 +92,9 @@ describe('Cart Items API', () => {
       .post('/api/cart-items')
       .send({ productId, quantity: 0 });
     expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('success', false);
+    expect(res.body).toHaveProperty('error', 'Validation failed');
+    expect(Array.isArray(res.body.details)).toBe(true);
   });
 
   it('DELETE /api/cart-items/:productId removes an item', async () => {
