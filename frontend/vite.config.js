@@ -16,6 +16,13 @@ export default defineConfig({
       },
     }),
   ],
+  define: {
+    // On Vercel: force the API base to the Render backend.
+    // Locally: let import.meta.env.VITE_API_URL fall through (empty = Vite proxy).
+    'import.meta.env.VITE_API_URL': isVercel
+      ? JSON.stringify('https://amazonclone-hnlb.onrender.com')
+      : 'import.meta.env.VITE_API_URL',
+  },
   build: {
     // Vercel: use default 'dist' in frontend/
     // Docker/single-server: output to ../backend/dist for Express to serve
