@@ -37,8 +37,22 @@ const servesFrontend = !process.env.FRONTEND_URL;
 
 // ── Security Middleware ───────────────────────────────────────────
 
-// 1. Helmet — security headers
-app.use(helmet());
+// 1. Helmet — security headers (relaxed for cross-origin image serving)
+const helmetConfig = {
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https://amazon-sooty-omega.vercel.app'],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
+      fontSrc: ["'self'", 'https:', 'data:'],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+};
+app.use(helmet(helmetConfig));
 
 // 2. Compression — gzip all responses (production standard)
 app.use(compression());
