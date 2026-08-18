@@ -32,7 +32,7 @@
     "patch-package": "^8.0.1",
     "pg": "^8.16.0",
     "sequelize": "^6.6.5",
-    "sql.js": "1.10.3",
+    "sql.js": "1.14.2",
     "sql.js-as-sqlite3": "0.2.1"
   },
   "devDependencies": {
